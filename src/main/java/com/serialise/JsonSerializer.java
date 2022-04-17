@@ -61,7 +61,7 @@ public final class JsonSerializer {
                 {
                     res+="\""+val+"\",";
                 }
-                res=res.substring(0,res.length()-3);
+                res=res.substring(0,res.length()-2);
                 res+="\"]";
             }
             else if (typ.isArray() && typ.getComponentType().isPrimitive())
@@ -71,7 +71,7 @@ public final class JsonSerializer {
                 for (int i = 0; i < length; i++) {
                     res+=Array.get(valField, i).toString()+',';
                 }
-                res=res.substring(0,res.length()-2);
+                res=res.substring(0,res.length()-1);
                 res+="]";
             }
             else res=field.get(obj).toString();

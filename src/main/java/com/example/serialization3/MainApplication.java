@@ -1,42 +1,35 @@
 package com.example.serialization3;
 
-import com.pack.*;
+import com.pack.MilitaryAirVehicle;
+import com.pack.MilitaryPlane;
 import com.pack.derivates.*;
 import com.serialise.JsonSerializer;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.DefaultStringConverter;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javafx.collections.ObservableList;
-import javafx.scene.control.*;
-import com.pack.*;
-import javafx.util.converter.BooleanStringConverter;
-import javafx.util.converter.DefaultStringConverter;
-import javafx.util.converter.FloatStringConverter;
-import javafx.util.converter.IntegerStringConverter;
 
 
 public class MainApplication extends Application {
 
     ObservableList<MilitaryAirVehicle> trList;
     List<MilitaryAirVehicle> transportList;
-    String json;
-    TextArea textArea;
 
 
     @Override
@@ -50,14 +43,13 @@ public class MainApplication extends Application {
         TableView<MilitaryAirVehicle> table1 = new TableView<MilitaryAirVehicle>(trList);
         table1.setPrefWidth(1200);
         table1.setPrefHeight(200);
-        Helicopter h = new Helicopter();
 
         table1.setEditable(true);
         TableColumn<MilitaryAirVehicle, Class> classColumn = new TableColumn<>("Class");
         classColumn.setCellValueFactory(new PropertyValueFactory<>("class"));
         table1.getColumns().add(classColumn);
         classColumn.setPrefWidth(300);
-        TableColumn<MilitaryAirVehicle, String> maxSpeedColumn = new TableColumn<MilitaryAirVehicle, String>("MaxSpeed");
+        TableColumn<MilitaryAirVehicle, String> maxSpeedColumn = new TableColumn<>("MaxSpeed");
         maxSpeedColumn.setCellValueFactory(new PropertyValueFactory<MilitaryAirVehicle, String>("maxSpeed"));
         table1.getColumns().add(maxSpeedColumn);
 
@@ -282,100 +274,71 @@ public class MainApplication extends Application {
         );
 
         final Button addAttackAircraft = new Button("Add AttackAircraft");
-        addAttackAircraft.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new AttackAircraft());
-            }
-        });
+        addAttackAircraft.setOnAction(e -> trList.add(new AttackAircraft()));
 
 
         final Button addBomberButton = new Button("Add Bomber");
-        addBomberButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new Bomber());
-            }
-        });
+        addBomberButton.setOnAction(e -> trList.add(new Bomber()));
 
 
         final Button addDroneButton = new Button("Add Drone");
-        addDroneButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new Drone(
-                ));
-            }
-        });
+        addDroneButton.setOnAction(e -> trList.add(new Drone(
+        )));
 
         final Button addFighterButton = new Button("Add Fighter");
-        addFighterButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new Fighter(
-                ));
-            }
-        });
+        addFighterButton.setOnAction(e -> trList.add(new Fighter(
+        )));
 
         final Button addHelicopterButton = new Button("Add Helicopter");
-        addHelicopterButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new Helicopter(
-                ));
-            }
-        });
+        addHelicopterButton.setOnAction(e -> trList.add(new Helicopter(
+        )));
 
         final Button addTransportAircraft = new Button("Add TransportAircraft");
-        addTransportAircraft.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.add(new TransportAircraft());
-            }
-        });
+        addTransportAircraft.setOnAction(e -> trList.add(new TransportAircraft()));
 
 
         final Button addDeleteButton = new Button("Delete");
-        addDeleteButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                trList.removeAll(table1.getSelectionModel().getSelectedItem());
-            }
-        });
+        addDeleteButton.setOnAction(e -> trList.removeAll(table1.getSelectionModel().getSelectedItem()));
 
 
         final Button addSerializeButton = new Button("Serialize");
 
-        addSerializeButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                transportList = trList.subList(0, trList.size());
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Сериализация");
+        addSerializeButton.setOnAction(e -> {
 
-                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Serialise files (*.jsSer)", "*.jsSer"));
-                File file=fileChooser.showSaveDialog(stage);
-                if (file!=null) {
-                    try {
-                        file.createNewFile();
-                        FileWriter fw = new FileWriter(file);
-                        for (var el : trList) {
-                            try {
-                                String jsonStr = JsonSerializer.Serialize(el);
-                                fw.write(jsonStr);
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Сериализация");
 
-                            } catch (IllegalAccessException ex) {
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Serialise files (*.jsSer)", "*.jsSer"));
+            File file=fileChooser.showSaveDialog(stage);
+            if (file!=null) {
+                FileWriter fw = null;
+                try {
+                    file.createNewFile();
+                    fw = new FileWriter(file);
+                    for (var el : trList) {
+                        try {
+                            String jsonStr = JsonSerializer.Serialize(el);
+                            fw.write(jsonStr);
 
-                            }
+                        } catch (IllegalAccessException ex) {
+
                         }
-                        fw.close();
-                    } catch (IOException ex) {
-
                     }
 
+                } catch (IOException ex) {
+
+                } finally {
+                    if (fw!=null) {
+                        try {
+                            fw.close();
+                        } catch (IOException ex) {
+
+                        }
+                    }
                 }
 
             }
+
         });
 
         final Button addDeserializeButton = new Button("Deserialize");
@@ -389,31 +352,48 @@ public class MainApplication extends Application {
                 fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Serialise files (*.jsSer)", "*.jsSer"));
                 File file = fileChooser.showOpenDialog(stage);
                 if (file != null) {
-                        transportList.clear();
 
+
+                    BufferedReader br = null;
+                    FileReader fr = null;
                     try {
-                        FileReader fr = new FileReader(file);
-                        BufferedReader br = new BufferedReader(fr);
-                        String readStr=br.readLine();
-                        while (readStr!=null) {
+                        fr = new FileReader(file);
+                        br = new BufferedReader(fr);
+                        String readStr = br.readLine();
+                        while (readStr != null) {
                             try {
                                 MilitaryAirVehicle TransportMilitary = (MilitaryAirVehicle) JsonSerializer.Deserialize(readStr);
                                 if (TransportMilitary != null) {
                                     transportList.add(TransportMilitary);
                                 }
+                            } catch (Exception ex) {
                             }
-                            catch (Exception ex)
-                            {}
-                            readStr=br.readLine();
+                            readStr = br.readLine();
                         }
-                        br.close();
-                        fr.close();
 
-                        trList.addAll(FXCollections.observableList(transportList));
-                     //   table1.getItems().clear();
-                     //   table1.getItems().addAll(trList);
+
+
+                        //   table1.getItems().clear();
+                        //   table1.getItems().addAll(trList);
                     } catch (IOException ex) {
 
+                    } finally {
+                        if (br != null) {
+                            try {
+                                br.close();
+                            } catch (IOException ex) {
+
+                            }
+                        }
+                        if (fr != null) {
+                            try {
+                                fr.close();
+                            } catch (IOException ex) {
+
+                            }
+                        }
+                        trList.addAll(FXCollections.observableList(transportList));
+                        transportList.clear();
                     }
 
 
