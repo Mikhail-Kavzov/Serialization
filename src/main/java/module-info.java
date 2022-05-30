@@ -1,4 +1,4 @@
-module com.example.serialization3 {
+module com {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -11,7 +11,9 @@ module com.example.serialization3 {
     requires eu.hansolo.tilesfx;
 
     opens com.example.serialization3 to javafx.fxml;
+    opens com.pack.derivates to javafx.fxml;
+    exports com.pack.derivates;
+    exports com.pack.test;
     exports com.example.serialization3;
     exports com.pack;
-    exports com.pack.derivates;
 }

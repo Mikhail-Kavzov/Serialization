@@ -1,5 +1,7 @@
 package com.serialise;
 
+import com.pack.fields.FieldClass;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 
-public final class JsonSerializer {
+public final  class JsonSerializer {
 
     private static final String arrs="(\\[(("+RegularExpressions.stroka+"|"+RegularExpressions.primitive+"),?)*])";
     private  static final String valueOfField = "("+arrs+"|"+RegularExpressions.stroka+"|"+RegularExpressions.primitive+")";
@@ -20,28 +22,12 @@ public final class JsonSerializer {
     private  static final String objectPattern="\\{"+nameObj+"(\""+nameField+"\":"+valueOfField+",?)*}";
 
 
-
-
-    private static List<Field> getPublicProtectedFields(Class cls) {
-        if (cls == null) {
-            return Collections.emptyList();
-        }
-        List<Field> result = new ArrayList<>(getPublicProtectedFields(cls.getSuperclass()));
-        List filteredFields = Arrays.stream(cls.getDeclaredFields())
-                .filter(f -> Modifier.isPublic(f.getModifiers()) || Modifier.isProtected(f.getModifiers())).toList();
-        result.addAll(filteredFields);
-        return result;
-    }
-
-
-
-
     public static String Serialize(Object obj) throws IllegalAccessException {
 
         var cls= obj.getClass();
-        List<Field> allFields = Arrays.stream(cls.getDeclaredFields()).collect(toList());
+        List<Field> allFields = FieldClass.getAllFields(cls);
         String str="{"+cls.getName();
-        allFields.addAll(getPublicProtectedFields(cls.getSuperclass()));
+
 
         for (Field field:allFields)
         {
@@ -92,7 +78,7 @@ public final class JsonSerializer {
         }
         return word;
     }
-    private static int RecursiveFunc(int i, String str, List values,Class typeOfField) {
+    private static int RecursiveFunc(int i, String str, List values,Class typeOfField) throws Exception {
 
         switch (str.charAt(i)) {
             case '[': //массив
@@ -132,30 +118,53 @@ public final class JsonSerializer {
 
                 if (typeOfField.equals(long.class)) //спасибо "нормальному" приведению типов java
                 {
-                    nval=Long.parseLong(val);
+
+                    long lng = Long.parseLong(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval= lng;
                 }
                 else if(typeOfField.equals(int.class))
                 {
-                    nval=Integer.parseInt(val);
+
+                    int lng = Integer.parseInt(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval=lng;
                 }
                 else if(typeOfField.equals(short.class))
                 {
-                    nval=Short.parseShort(val);
+                    short lng = Short.parseShort(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval=lng;
                 }
                 else if(typeOfField.equals(byte.class))
                 {
-                    nval=Byte.parseByte(val);
+                    byte lng = Byte.parseByte(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval=lng;
                 }
                 else if(typeOfField.equals(double.class))
                 {
-                    nval=Double.parseDouble(val);
+
+                    double lng = Double.parseDouble(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval=lng;
+
                 }
                 else if(typeOfField.equals(float.class))
                 {
-                    nval=Float.parseFloat(val);
+                    float lng = Float.parseFloat(val);
+                    if (lng<0)
+                        throw new Exception("");
+                    nval=lng;
                 }
                 else nval=Boolean.parseBoolean(val);
                 values.add(nval);
+
 
 
             }
@@ -179,8 +188,7 @@ public final class JsonSerializer {
         var clsInstance = cls.getDeclaredConstructor().newInstance();
 
         //
-        List<Field> allFields = Arrays.stream(cls.getDeclaredFields()).collect(toList());
-        allFields.addAll(getPublicProtectedFields(cls.getSuperclass())); //список всех полей
+        List<Field> allFields = FieldClass.getAllFields(cls);//список всех полей
 
         ++i;
         Field fld=null;
@@ -214,8 +222,14 @@ public final class JsonSerializer {
 
                 fld.set(clsInstance,values.get(0));
             }
-            else //is Array
-                fld.set(clsInstance, values.toArray((Object[]) Array.newInstance(typeOfField, values.size())));
+            else {//is Array
+                Object mArr =Array.newInstance(typeOfField, values.size());
+                for (int j = 0; j < values.size(); j++) {
+                    // value = ....
+                    Array.set(mArr, j, values.get(j));
+                }
+                fld.set(clsInstance,mArr);
+            }
             values.clear();
             i+=2;
         }
@@ -228,3 +242,5 @@ public final class JsonSerializer {
 
     }
 }
+
+
