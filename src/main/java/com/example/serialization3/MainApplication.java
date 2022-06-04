@@ -1,7 +1,6 @@
 package com.example.serialization3;
-import com.pack.MilitaryAirVehicle;
+import derivates.MilitaryAirVehicle;
 import com.pack.alert.MessageBox;
-import com.pack.digest.PlaginSignature;
 import com.pack.fields.FieldClass;
 import com.serialise.JsonSerializer;
 import javafx.application.Application;
@@ -24,9 +23,10 @@ import java.io.*;
 import java.lang.reflect.Field;
 
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 
-import static com.pack.digest.PlaginSignature.*;
 
 
 public class MainApplication extends Application {
@@ -41,22 +41,25 @@ public class MainApplication extends Application {
         transportList = new ArrayList<>();
         final int javaExt=6;
         String clsPath="com.pack.derivates.";
-        String pathToPackage="target/classes/com/pack/derivates/";
-        File ClassPathList=new File(pathToPackage);
+      //  String pathToPackage="target/classes/com/pack/derivates/";
+        var classUrl = new URL("file:///target/classes/com/pack/derivates/");
+        var urlLoader= new URLClassLoader(new URL[]{classUrl});
+      /*  File ClassPathList=new File(pathToPackage);
         File[] FileList=ClassPathList.listFiles();
         List<String> javaClasses=new ArrayList<>();
 
-        for (var ClassFile:FileList )
+     for (var ClassFile:FileList )
         {   String temp=ClassFile.getName();
            javaClasses.add(temp.substring(0,temp.length()-javaExt));
-        }
+        }*/
 
         List<Class>classOfDerivate= new ArrayList<>();
+        classOfDerivate.add(urlLoader.loadClass("derivates.Bomber"));
         Set<Field> uniqueFields = new LinkedHashSet<>();
-        for (String cl:javaClasses)
-        {
-            classOfDerivate.add(Class.forName(clsPath+cl));
-        }
+       // for (String cl:javaClasses)
+     //   {
+         //   classOfDerivate.add(Class.forName(clsPath+cl));
+       // }
         for (Class cls: classOfDerivate)
         {
             uniqueFields.addAll(FieldClass.getAllFields(cls));
@@ -239,36 +242,6 @@ public class MainApplication extends Application {
 
         });
 
-        final Button signButton = new Button("Sign Plagin");
-
-        signButton.setOnAction(e -> {
-
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Подпись");
-
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Class files (*.class)", "*.class"));
-            File file=fileChooser.showOpenDialog(stage);
-
-            if (file!=null) {
-                try {
-
-                    var fullPath = file.getAbsolutePath();
-                    if (signPlagin(fullPath)) {
-                        MessageBox.show(Alert.AlertType.INFORMATION,"Info","Info","Плагин успешно подписан");
-                    } else {
-                        MessageBox.show(Alert.AlertType.INFORMATION,"Info","Info","Не удалось подписать плагин");
-                    }
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-
-
-
-        });
         for (Class cls:classOfDerivate)
         {
             Method m = cls.getMethod("getButton",ObservableList.class);

@@ -1,4 +1,4 @@
-package com.pack;
+package derivates;
 
 public abstract class MilitaryPlane extends MilitaryAirVehicle{
     protected int takeOffRun; //длина разбега

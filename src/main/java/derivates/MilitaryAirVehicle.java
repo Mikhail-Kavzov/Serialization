@@ -1,7 +1,6 @@
-package com.pack;
+package derivates;
 
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -9,9 +8,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DefaultStringConverter;
 
 import java.lang.*;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Set;
 
 public abstract class MilitaryAirVehicle {

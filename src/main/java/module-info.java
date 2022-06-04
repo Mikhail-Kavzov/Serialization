@@ -11,9 +11,8 @@ module com {
     requires eu.hansolo.tilesfx;
 
     opens com.example.serialization3 to javafx.fxml;
-    opens com.pack.derivates to javafx.fxml;
-    exports com.pack.derivates;
-    exports com.pack.test;
+
     exports com.example.serialization3;
-    exports com.pack;
+    exports derivates;
+    opens derivates to javafx.fxml;
 }
