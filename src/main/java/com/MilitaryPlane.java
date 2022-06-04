@@ -1,6 +1,8 @@
-package derivates;
+package com;
 
-public abstract class MilitaryPlane extends MilitaryAirVehicle{
+import com.MilitaryAirVehicle;
+
+public abstract class MilitaryPlane extends MilitaryAirVehicle {
     protected int takeOffRun; //длина разбега
 
     public String getTakeOffRun() {return Integer.toString(takeOffRun);}

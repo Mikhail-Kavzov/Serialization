@@ -1,6 +1,5 @@
 package com.example.serialization3;
-import derivates.MilitaryAirVehicle;
-import com.pack.alert.MessageBox;
+import com.MilitaryAirVehicle;
 import com.pack.fields.FieldClass;
 import com.serialise.JsonSerializer;
 import javafx.application.Application;
@@ -23,6 +22,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -40,26 +40,25 @@ public class MainApplication extends Application {
 
         transportList = new ArrayList<>();
         final int javaExt=6;
-        String clsPath="com.pack.derivates.";
-      //  String pathToPackage="target/classes/com/pack/derivates/";
-        var classUrl = new URL("file:///target/classes/com/pack/derivates/");
+        String pathToPackage="C:/Users/user/Documents/test/";
+        var classUrl = new URL("file:/C:/Users/user/Documents/test/");
         var urlLoader= new URLClassLoader(new URL[]{classUrl});
-      /*  File ClassPathList=new File(pathToPackage);
+        File ClassPathList=new File(pathToPackage);
         File[] FileList=ClassPathList.listFiles();
         List<String> javaClasses=new ArrayList<>();
 
      for (var ClassFile:FileList )
         {   String temp=ClassFile.getName();
            javaClasses.add(temp.substring(0,temp.length()-javaExt));
-        }*/
+        }
 
         List<Class>classOfDerivate= new ArrayList<>();
-        classOfDerivate.add(urlLoader.loadClass("derivates.Bomber"));
+
         Set<Field> uniqueFields = new LinkedHashSet<>();
-       // for (String cl:javaClasses)
-     //   {
-         //   classOfDerivate.add(Class.forName(clsPath+cl));
-       // }
+        for (String cl:javaClasses)
+        {
+            classOfDerivate.add(urlLoader.loadClass(cl));
+        }
         for (Class cls: classOfDerivate)
         {
             uniqueFields.addAll(FieldClass.getAllFields(cls));
@@ -200,7 +199,6 @@ public class MainApplication extends Application {
         addPlaginButton.setOnAction(e -> {
 
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setInitialDirectory( new File("./target/classes/com/pack/test"));
             fileChooser.setTitle("Плагин");
 
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Class files (*.class)", "*.class"));
@@ -208,16 +206,14 @@ public class MainApplication extends Application {
 
             if (file!=null) {
                 try {
-                    var name=file.getName();
-
-                    var fullPath = file.getAbsolutePath();
-                    int index= fullPath.lastIndexOf("classes\\com");
-                   if(index!=-1) {
-                       String shortname=fullPath.substring(index+8);
-                       shortname=shortname.substring(0,shortname.length()-javaExt);
-                        shortname=shortname.replace('\\','.');
-
-                       Class<?> cls= Class.forName(shortname);
+                    String name=file.getName();
+                    name=name.substring(0,name.length()-javaExt);
+                    StringBuilder fullPath = new StringBuilder(file.getParent());
+                    fullPath.append("/");
+                    fullPath.insert(0,"file:/");
+                    URL urlload=new URL(fullPath.toString());
+                    URLClassLoader url=new URLClassLoader(new URL[]{urlload});
+                      Class cls=url.loadClass(name);
                        Set<Field> newFields=new LinkedHashSet<>(FieldClass.getAllFields(cls));
 
                        newFields.removeAll(uniqueFields);
@@ -232,7 +228,7 @@ public class MainApplication extends Application {
 
                    }
 
-                } catch (Exception ex) {
+                 catch (Exception ex) {
                     ex.printStackTrace();
                 }
 

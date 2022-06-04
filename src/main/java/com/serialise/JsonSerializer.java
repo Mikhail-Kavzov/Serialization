@@ -184,7 +184,7 @@ public final  class JsonSerializer {
         a.set(i);
         String  objectName=HighlightWord(a, str); //выделяем имя класса
         i=a.get();
-        Class cls = Class.forName(objectName); //получаем класс
+        Class cls = Class.forName("class "+objectName); //получаем класс
         var clsInstance = cls.getDeclaredConstructor().newInstance();
 
         //

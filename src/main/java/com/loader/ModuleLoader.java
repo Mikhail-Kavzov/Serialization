@@ -2,13 +2,12 @@ package com.loader;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class ModuleLoader extends ClassLoader {
 
-    private String pathtobin;
+    private final String pathtobin;
 
     public ModuleLoader(String pathtobin, ClassLoader parent) {
         super(parent);

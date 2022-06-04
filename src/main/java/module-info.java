@@ -13,6 +13,6 @@ module com {
     opens com.example.serialization3 to javafx.fxml;
 
     exports com.example.serialization3;
-    exports derivates;
-    opens derivates to javafx.fxml;
+    exports com;
+    opens com to javafx.fxml;
 }
