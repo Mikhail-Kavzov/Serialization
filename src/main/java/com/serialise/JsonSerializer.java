@@ -6,10 +6,9 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 
@@ -172,7 +171,7 @@ public final  class JsonSerializer {
         }
         return i;
     }
-    public static Object Deserialize(String str)
+    public static Object Deserialize(String str, Set<URL> setUrl)
     {   try
     {
         str=str.trim();
@@ -184,7 +183,8 @@ public final  class JsonSerializer {
         a.set(i);
         String  objectName=HighlightWord(a, str); //выделяем имя класса
         i=a.get();
-        Class cls = Class.forName("class "+objectName); //получаем класс
+        URLClassLoader urlClassLoader=new URLClassLoader(setUrl.toArray(new URL[0]));
+        Class cls=urlClassLoader.loadClass(objectName);
         var clsInstance = cls.getDeclaredConstructor().newInstance();
 
         //

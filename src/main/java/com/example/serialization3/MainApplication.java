@@ -1,5 +1,7 @@
 package com.example.serialization3;
 import com.MilitaryAirVehicle;
+import com.pack.ClassFinder;
+import com.pack.alert.MessageBox;
 import com.pack.fields.FieldClass;
 import com.serialise.JsonSerializer;
 import javafx.application.Application;
@@ -17,7 +19,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
+import com.pack.derivates.*;
 import java.io.*;
 import java.lang.reflect.Field;
 
@@ -39,32 +41,24 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws Exception {
 
         transportList = new ArrayList<>();
-        final int javaExt=6;
-        String pathToPackage="C:/Users/user/Documents/test/";
-        var classUrl = new URL("file:/C:/Users/user/Documents/test/");
-        var urlLoader= new URLClassLoader(new URL[]{classUrl});
-        File ClassPathList=new File(pathToPackage);
-        File[] FileList=ClassPathList.listFiles();
-        List<String> javaClasses=new ArrayList<>();
+        stage.setTitle("Serialization");
+        String dir = System.getProperty("user.dir");
+        String pathToPackage="out/artifacts/Serialization3_jar/test/";
+        Set<URL> setUrl=new LinkedHashSet<>();
+        URL classUrl = new URL("file:/"+dir+"/"+pathToPackage);
+        String pathToClassesStatic="target/classes/com/pack/derivates/";
+        setUrl.add(classUrl);
+        setUrl.add(new URL("file:/"+dir+"/"+pathToClassesStatic));
+        URLClassLoader urlLoader= new URLClassLoader(setUrl.toArray(new URL[0]));
+        ClassFinder classFinder= new ClassFinder(pathToPackage);
 
-     for (var ClassFile:FileList )
-        {   String temp=ClassFile.getName();
-           javaClasses.add(temp.substring(0,temp.length()-javaExt));
-        }
-
-        List<Class>classOfDerivate= new ArrayList<>();
-
-        Set<Field> uniqueFields = new LinkedHashSet<>();
-        for (String cl:javaClasses)
-        {
-            classOfDerivate.add(urlLoader.loadClass(cl));
-        }
-        for (Class cls: classOfDerivate)
-        {
-            uniqueFields.addAll(FieldClass.getAllFields(cls));
-
-        }
-
+        Set<String> filesName=classFinder.getFileName();
+        Set<Class> newClasses=classFinder.getNewClasses(filesName,urlLoader);
+        classFinder= new ClassFinder(pathToClassesStatic);
+        filesName=classFinder.getFileName();
+        for (String fileName: filesName)
+        newClasses.add(Class.forName("com.pack.derivates."+fileName));
+        Set<Field>uniqueFields=classFinder.getFieldsClasses(newClasses);
         Set<String> fieldsName=FieldClass.getFieldsName(uniqueFields);
 
         trList = FXCollections.observableArrayList(transportList);
@@ -149,16 +143,12 @@ public class MainApplication extends Application {
                         String readStr = br.readLine();
                         while (readStr != null) {
                             try {
-                                MilitaryAirVehicle TransportMilitary = (MilitaryAirVehicle) JsonSerializer.Deserialize(readStr);
+                                MilitaryAirVehicle TransportMilitary = (MilitaryAirVehicle) JsonSerializer.Deserialize(readStr,setUrl);
                                 if (TransportMilitary != null) {
                                     transportList.add(TransportMilitary);
                                 }
                                 else {
-                                    Alert alert = new Alert (Alert.AlertType.INFORMATION);
-                                    alert.setTitle("Info");
-                                    alert.setHeaderText("Warning");
-                                    alert.setContentText("Не удалось создать объект\n"+readStr);
-                                    alert.showAndWait();
+                                    MessageBox.show(Alert.AlertType.INFORMATION,"Info","Warning","Не удалось создать объект\n"+readStr);
                                 }
 
                             } catch (Exception ex) {
@@ -207,12 +197,14 @@ public class MainApplication extends Application {
             if (file!=null) {
                 try {
                     String name=file.getName();
-                    name=name.substring(0,name.length()-javaExt);
+                    name=name.substring(0,name.length()-6);
                     StringBuilder fullPath = new StringBuilder(file.getParent());
                     fullPath.append("/");
                     fullPath.insert(0,"file:/");
                     URL urlload=new URL(fullPath.toString());
                     URLClassLoader url=new URLClassLoader(new URL[]{urlload});
+                    if (!setUrl.add(urlload))
+                        return;
                       Class cls=url.loadClass(name);
                        Set<Field> newFields=new LinkedHashSet<>(FieldClass.getAllFields(cls));
 
@@ -238,7 +230,7 @@ public class MainApplication extends Application {
 
         });
 
-        for (Class cls:classOfDerivate)
+        for (Class cls:newClasses)
         {
             Method m = cls.getMethod("getButton",ObservableList.class);
 
